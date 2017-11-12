@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Amqp on jStructure</title>
+    <link>http://jstructure.com/tags/amqp/</link>
+    <description>Recent content in Amqp on jStructure</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ru-ru</language>
+    <lastBuildDate>Sun, 12 Nov 2017 18:39:42 +0300</lastBuildDate>
+    
+	<atom:link href="http://jstructure.com/tags/amqp/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Повторное выполнение задач в RabbitMQ</title>
+      <link>http://jstructure.com/post/re-execution-of-tasks-in-rabbitmq/</link>
+      <pubDate>Sun, 12 Nov 2017 18:39:42 +0300</pubDate>
+      
+      <guid>http://jstructure.com/post/re-execution-of-tasks-in-rabbitmq/</guid>
+      <description>Во время выполнения задач, которые приходят подписчику из очереди в виде сообщения, возможны случаи сбоев и ошибок. При этом бывает, что задачу нужно попробовать выполнить некоторое количество раз, прежде чем удалить ее из очереди.
+Решение 1. Возврат сообщения в очередь. При возникновении ошибки на стороне подписчика можно отклонить сообщение (reject или nack с параметром requeue=true), оставив сообщение в очереди. Если очередь объявлена с параметром no_ack=false и подписчик не выполняет ack, сообщение также возвращается в очередь.</description>
+    </item>
+    
+  </channel>
+</rss>

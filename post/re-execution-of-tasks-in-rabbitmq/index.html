@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  
+  <meta charset="utf-8">
+  <title>Повторное выполнение задач в RabbitMQ</title>
+  <meta name="description" content="Повторное выполнение задач в RabbitMQ">
+  <meta name="author" content="">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="http://jstructure.com/css/fonts.css">
+  
+  
+  <link rel="stylesheet" href="https://unpkg.com/purecss@0.6.1/build/pure-min.css" integrity="sha384-CCTZv2q9I9m3UOxRLaJneXrrqKwUNOzZ6NGEUMwHtShDJ+nCoiXJCAgi05KfkLGY" crossorigin="anonymous">
+  
+  
+    <link rel="stylesheet" href="https://unpkg.com/purecss@0.6.1/build/grids-responsive-min.css">
+  
+  <link rel="stylesheet" href="http://jstructure.com/css/custom.css">
+
+  
+  
+  <link rel="stylesheet" href="http://jstructure.com/highlight/styles/default.css">
+  
+  <script src="http://jstructure.com/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <meta name="generator" content="Hugo 0.30.2" />
+  
+</head>
+<body>
+
+<div class="header pure-g">
+    <div class="pure-u-1-24 pure-u-md-5-24"></div>
+    <div class="pure-u-11-12 pure-u-md-5-8">
+        <div class="desktop pure-menu pure-menu-horizontal nav-menu">
+            
+            <a href="http://jstructure.com/" class="site-title pure-menu-heading">jStructure</a>
+            <ul class="pure-menu-list">
+				
+                <li class="pure-menu-item">
+                    <a href="http://jstructure.com/about/" class="pure-menu-link">About</a>
+                </li>
+            </ul>
+        </div>
+        <div class="mobile pure-menu nav-menu">
+            <a href="/" class="pure-menu-heading" id="toggle-home">jStructure</a>
+            <a href="#" id="toggle-btn">&#9776;</a>
+            <ul class="pure-menu-list" id="toggle-content" style="display:none;">
+                
+				
+                <li class="pure-menu-item">
+                    <a href="http://jstructure.com/about" class="pure-menu-link">About</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="pure-u-1-24 pure-u-md-1-6"></div>
+</div>
+
+<div class="pure-g">
+    <div class="pure-u-1-24 pure-u-md-5-24"></div>
+	<div class="pure-u-11-12 pure-u-md-5-8">
+        <div class="post">
+
+            <div class="post-title">
+                <p class="footnote">
+                    <time class="">2017-11-12</time>
+		            
+                    
+                    |
+                    
+                    
+                    tags:<a href="http://jstructure.com/tags/rabbitmq">RabbitMQ</a> <a href="http://jstructure.com/tags/amqp">AMQP</a> <a href="http://jstructure.com/tags/dlx">DLX</a> 
+                    
+
+                    
+
+                    
+                </p>
+                <h1>Повторное выполнение задач в RabbitMQ</h1>
+            </div>
+
+            <div class="post-content">
+                
+
+<p>Во время выполнения задач, которые приходят подписчику из очереди в виде сообщения, возможны случаи сбоев и ошибок. При этом бывает, что задачу нужно попробовать выполнить некоторое количество раз, прежде чем удалить ее из очереди.</p>
+
+<h2 id="решение-1-возврат-сообщения-в-очередь">Решение 1. Возврат сообщения в очередь.</h2>
+
+<p>При возникновении ошибки на стороне подписчика можно отклонить сообщение (<em>reject</em> или <em>nack</em> с параметром <code>requeue=true</code>), оставив сообщение в очереди. Если очередь объявлена с параметром <code>no_ack=false</code> и подписчик не выполняет <em>ack</em>, сообщение также возвращается в очередь. При возврате сообщения в очередь ему автоматически добавляется заголовок <code>redelivered=true</code>. Количество возвратов при этом нельзя зафиксировать. По наличию этого заголовка можно понять только то, что сообщение уже обрабатывалось и по каким-то причинам возвратилось в очередь. Таким образом, вариантов лимитирования количества попыток обработки сообщений немного &mdash; либо 1 раз, либо 2 раза, либо возвращать сообщение в очередь до тех пор, пока оно не обработается без ошибки. Возможность появления дублей и потери сообщений в данном решении отсутсвуют.</p>
+
+<h2 id="решение-2-публикация-сообщения-с-подтверждением-обрабатываемого-сообщения">Решение 2. Публикация сообщения с подтверждением обрабатываемого сообщения.</h2>
+
+<p>Как вариант, можно заново опубликовать сообщение в очередь и добавить при этом в сообщение специальный заголовок для хранения количества &ldquo;возвратов&rdquo;. После публикации сообщения нужно выполнить <em>ack</em> по исходному сообщению, в результате обработки которого произошла ошибка. Сохранность данных в этой реализации гарантируется, однако, возможны случаи <strong>дублирования сообщения</strong>. Это возможно в случае завершения работы подписчика между этапами публикации сообщения и выполнением действия <em>ack</em> по обрабатываемому сообщению.</p>
+
+<h2 id="решение-3-подтверждение-обрабатываемого-сообщения-с-последующей-публикацией">Решение 3. Подтверждение обрабатываемого сообщения с последующей публикацией.</h2>
+
+<p>Можно изменить порядок выполнения в предыдущем решении. Вначале выполнять <em>ack</em> по исходному сообщению и только потом опубликовать сообщение с необходимым заголовком. В этом случае возможна <strong>потеря сообщения</strong>, но дублирование сообщения полностью исключается.</p>
+
+<h2 id="решение-4-использование-dead-letter-exchanges">Решение 4. Использование Dead Letter Exchanges.</h2>
+
+<p><strong>RabbitMQ</strong>, начиная с версии <a href="https://www.rabbitmq.com/release-notes/README-2.8.0.txt">2.8.0</a>, предоставляет функционал перенаправления сообщения из очереди в другую точку доступа (<em>exchange</em>), называемую <em><a href="https://www.rabbitmq.com/dlx.html">Dead letter exchange</a> (DLX)</em>. Этот функционал выходит за рамки протокола <a href="https://www.amqp.org/">AMQP</a>. Ниже перечисленны случаи, при которых это возможно.</p>
+
+<ul>
+<li>Отклонение сообщения (<em>reject</em> или <em>nack</em>) с параметром <code>requeue=false</code>.</li>
+<li>Истечение <em>TTL</em> сообщения.</li>
+<li>Достижение лимита очереди.</li>
+</ul>
+
+<p><em>DLX</em> можно задать на стороне клиента для любой очереди, задав соответствующий аргумент <code>x-dead-letter-exchange</code> при объявлении очереди. Также это можно сделать и на стороне сервера.</p>
+
+<p>Стоит отметить, что при публикации сообщения в другую очередь, сообщение не удаляется до тех пор, пока <em>dead-letter</em> очереди не подтвердят получение сообщений. Таким образом, непредвиденное выключение брокера во время сбоя может привести к <strong>дублированию сообщения</strong>. То есть <em>dead-letter</em> очередь получит сообщение, а подтверждение получения отправить не успеет, поэтому в первичной очереди сообщение останется.</p>
+
+<p>Используя функционал <em>DLX</em>, можно реализовать повторную обработку сообщений. Пример показан в статье &laquo;<a href="https://medium.com/@kiennguyen88/rabbitmq-delay-retry-schedule-with-dead-letter-exchange-31fb25a440fc">RabbitMQ delay retry/schedule with Dead Letter Exchange</a>&raquo;. Ниже приводится немного измененная реализация.</p>
+
+<p>Необходимо:</p>
+
+<ul>
+<li>создать две точки доступа: <em>WorkExchange</em> и <em>RetryExchange</em>;</li>
+<li>cоздать очередь <em>WorkQueue</em> с параметрами <code>x-dead-letter-exchange=RetryExchange</code> и связать ее c <em>WorkExchange</em>;</li>
+<li>cоздать очередь <em>RetryQueue</em> с параметрами <code>x-dead-letter-exchange=WorkExchange</code> и <code>x-message-ttl=300000</code>, и связать ее c <em>RetryExchange</em>.</li>
+</ul>
+
+<p>Исходное сообщение попадает в очередь <em>WorkQueue</em>. Подписчик забирает сообщение и в случае сбоя выполняет <em>reject</em> (или <em>nack</em>) с параметром <code>requeue=false</code>. После этого сообщение попадает в очередь <em>RetryQueue</em>, откуда, спустя 300000 мс, отправляется, минуя точку доступа <em>WorkExchange</em>, обратно в очередь <em>WorkQueue</em>.</p>
+
+            </div>
+        </div>
+	</div>
+    <div class="pure-u-1-24 pure-u-md-1-6"></div>
+</div>
+
+<div class="footer pure-g">
+    <div class="pure-u-1-24 pure-u-md-5-24"></div>
+    <div class="pure-u-11-12 pure-u-md-5-8">
+        <div class="footer-content">
+		  <div class="pure-menu pure-menu-horizontal">
+              <ul>
+			      
+				  
+                  
+          
+                  
+          
+                  
+          
+                  
+          
+                  
+          
+              </ul>
+              <a href="#" class="pure-menu-heading pull-right" id="gototop-btn">↑↑</a>
+          </div>
+		  
+		</div>
+	  </div>
+      <div class="pure-u-1-24 pure-u-md-1-6"></div>
+</div>
+
+
+<script src="http://jstructure.com/js/jquery.min.js" type="text/javascript"></script>
+<script src="http://jstructure.com/js/jquery.timeago.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(function(){
+    $("time.timeago").timeago();
+  })
+  $("#toggle-btn").click(function(){
+    $("#toggle-content").toggle();
+    if($(this).html() === "☰") {
+        $(this).html("X")
+    } else {
+        $(this).html("☰")
+    }
+  });
+  $(window).resize(function(){
+    if(window.innerWidth > 768) {
+      $(".desktop").removeAttr("style");
+    }
+  });
+</script>
+
+</body>
+</html>
+
