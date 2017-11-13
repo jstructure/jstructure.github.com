@@ -6,10 +6,20 @@
     <description>Recent content in Posts on jStructure</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ru-ru</language>
-    <lastBuildDate>Sun, 12 Nov 2017 18:39:42 +0300</lastBuildDate>
+    <lastBuildDate>Mon, 13 Nov 2017 09:22:29 +0300</lastBuildDate>
     
 	<atom:link href="http://jstructure.com/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Расширение сущности Doctrine ORM</title>
+      <link>http://jstructure.com/post/doctrine-entity-extending/</link>
+      <pubDate>Mon, 13 Nov 2017 09:22:29 +0300</pubDate>
+      
+      <guid>http://jstructure.com/post/doctrine-entity-extending/</guid>
+      <description>Иногда на практике бывает необходимо расширить сущности, передставляющие таблицы базы данных в коде. Например, PHP-фреймворк Symfony позволяет создавать сущности в так называемых вендорных банлах. При необходимости в приложении, использующей этот бандл, можно расширить вендорную сущность свойствами, присущими предметной области данного приложения. В статье рассматриваются различные варианты расширения сущностей на примере Doctrine ORM с использованием языка PHP.
+Наследование сущности без дополнительных аннотаций Начнем с рассмотрения простейшего случая расширения простым наследованием. Для этого создадим сущность ParentEntity и расширим его сущностью ChildEntity.</description>
+    </item>
     
     <item>
       <title>Повторное выполнение задач в RabbitMQ</title>
