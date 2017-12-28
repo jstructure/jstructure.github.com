@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on jStructure</title>
+    <title>Categories on Jstructure</title>
     <link>http://jstructure.com/categories/</link>
-    <description>Recent content in Categories on jStructure</description>
+    <description>Recent content in Categories on Jstructure</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ru-ru</language>
+    <copyright>&amp;copy; Albert Iskhakov</copyright>
     
 	<atom:link href="http://jstructure.com/categories/index.xml" rel="self" type="application/rss+xml" />
     
