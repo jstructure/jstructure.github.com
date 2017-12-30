@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>ru-ru</language>
     <copyright>&amp;copy; Albert Iskhakov</copyright>
-    <lastBuildDate>Mon, 13 Nov 2017 09:22:29 +0300</lastBuildDate>
+    <lastBuildDate>Thu, 28 Dec 2017 09:47:28 +0300</lastBuildDate>
     
 	<atom:link href="http://jstructure.com/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Повторное выполнение задач с разным временем ожидания повтора в RabbitMQ</title>
+      <link>http://jstructure.com/post/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/</link>
+      <pubDate>Thu, 28 Dec 2017 09:47:28 +0300</pubDate>
+      
+      <guid>http://jstructure.com/post/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/</guid>
+      <description>Попробуем модифицировать решение 4. Итак, на входе имеем точку обмена WorkExchange. На нее подписана очередь WorkQueue, отправляющая сбойные сообщения в RetryExchange (DLX), откуда сообщения перенаправляются в очередь RetryQueue, объявленную с параметром x-message-ttl. При дотижении ttl сообщение заново публикуется в WorkExchange и опять попадает в очередь WorkQueue. Этот цикл можно повторять до достижения заданного в слушателе лимита.
+Первым делом в голову приходит мысль добавления нескольких очередей для RetryExchange, с различными параметрами x-message-ttl.</description>
+    </item>
     
     <item>
       <title>Расширение сущности Doctrine ORM</title>
@@ -18,8 +28,8 @@
       <pubDate>Mon, 13 Nov 2017 09:22:29 +0300</pubDate>
       
       <guid>http://jstructure.com/post/doctrine-entity-extending/</guid>
-      <description>Иногда на практике бывает необходимо расширить сущности, передставляющие таблицы базы данных в коде. Например, PHP-фреймворк Symfony позволяет создавать сущности в так называемых вендорных бандлах. При необходимости в приложении, использующей этот бандл, можно расширить вендорную сущность свойствами, присущими предметной области данного приложения. В статье рассматриваются различные варианты расширения сущностей на примере Doctrine ORM с использованием языка PHP.
-Наследование сущности без дополнительных аннотаций Начнем с рассмотрения простейшего случая расширения простым наследованием. Для этого создадим сущность ParentEntity и расширим его сущностью ChildEntity.</description>
+      <description>Наследование сущности без дополнительных аннотаций Начнем с рассмотрения простейшего случая расширения простым наследованием. Для этого создадим сущность ParentEntity и расширим его сущностью ChildEntity. В данном примере не будем использовать специальные аннотации Doctrine, используемые для расширения сущностей.
+&amp;lt;?php // src/DataLayerBundle/Entity/ParentEntity.php namespace DataLayerBundle\Entity; use Doctrine\ORM\Mapping as ORM; /** * @ORM\Table(name=&amp;quot;parent_entity&amp;quot;) */ class ParentEntity { /** * @var int * * @ORM\Column(name=&amp;quot;id&amp;quot;, type=&amp;quot;integer&amp;quot;) * @ORM\Id * @ORM\GeneratedValue(strategy=&amp;quot;AUTO&amp;quot;) */ protected $id; /** * @var string * * @ORM\Column(name=&amp;quot;name&amp;quot;, type=&amp;quot;string&amp;quot;, length=255) */ protected $name; }  Сущность ParentEntity содержит идентификатор и свойсво $name, которое является текстовым.</description>
     </item>
     
     <item>
@@ -28,8 +38,7 @@
       <pubDate>Sun, 12 Nov 2017 18:39:42 +0300</pubDate>
       
       <guid>http://jstructure.com/post/re-execution-of-tasks-in-rabbitmq/</guid>
-      <description>Во время выполнения задач, которые приходят подписчику из очереди в виде сообщения, возможны случаи сбоев и ошибок. При этом бывает, что задачу нужно попробовать выполнить некоторое количество раз, прежде чем удалить ее из очереди.
-Решение 1. Возврат сообщения в очередь. При возникновении ошибки на стороне подписчика можно отклонить сообщение (reject или nack с параметром requeue=true), оставив сообщение в очереди. Если очередь объявлена с параметром no_ack=false и подписчик не выполняет ack, сообщение также возвращается в очередь.</description>
+      <description>Решение 1. Возврат сообщения в очередь. При возникновении ошибки на стороне подписчика можно отклонить сообщение (reject или nack с параметром requeue=true), оставив сообщение в очереди. Если очередь объявлена с параметром no_ack=false и подписчик не выполняет ack, сообщение также возвращается в очередь. При возврате сообщения в очередь ему автоматически добавляется заголовок redelivered=true. Количество возвратов при этом нельзя зафиксировать. По наличию этого заголовка можно понять только то, что сообщение уже обрабатывалось и по каким-то причинам возвратилось в очередь.</description>
     </item>
     
   </channel>

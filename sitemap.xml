@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://jstructure.com/post/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/</loc>
+    <lastmod>2017-12-28T09:47:28+03:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://jstructure.com/post/doctrine-entity-extending/</loc>
     <lastmod>2017-11-13T09:22:29+03:00</lastmod>
   </url>
@@ -25,7 +30,7 @@
   
   <url>
     <loc>http://jstructure.com/tags/dlx/</loc>
-    <lastmod>2017-11-12T18:39:42+03:00</lastmod>
+    <lastmod>2017-12-28T09:47:28+03:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -37,7 +42,7 @@
   
   <url>
     <loc>http://jstructure.com/</loc>
-    <lastmod>2017-11-13T09:22:29+03:00</lastmod>
+    <lastmod>2017-12-28T09:47:28+03:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -55,13 +60,13 @@
   
   <url>
     <loc>http://jstructure.com/post/</loc>
-    <lastmod>2017-11-13T09:22:29+03:00</lastmod>
+    <lastmod>2017-12-28T09:47:28+03:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>http://jstructure.com/tags/rabbitmq/</loc>
-    <lastmod>2017-11-12T18:39:42+03:00</lastmod>
+    <lastmod>2017-12-28T09:47:28+03:00</lastmod>
     <priority>0</priority>
   </url>
   

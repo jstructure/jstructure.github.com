@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru-ru">
+	<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="JStructure">
+<meta name="description" content="Блог о программировании">
+<meta name="generator" content="Hugo 0.30.2" />
+<title>Повторное выполнение задач с разным временем ожидания повтора в RabbitMQ</title>
+<link rel="shortcut icon" href="http://jstructure.com/images/favicon.ico">
+<link rel="stylesheet" href="http://jstructure.com/css/style.css">
+<link rel="stylesheet" href="http://jstructure.com/css/highlight.css">
+
+
+
+<link rel="stylesheet" href="http://jstructure.com/css/monosocialiconsfont.css">
+
+
+
+<link href="http://jstructure.com/index.xml" rel="alternate" type="application/rss+xml" title="Jstructure" />
+
+
+<meta property="og:title" content="Повторное выполнение задач с разным временем ожидания повтора в RabbitMQ" />
+<meta property="og:description" content="Я уже писал про &amp;laquo;[повторное выполнение задач в RabbitMQ](/post/re-execution-of-tasks-in-rabbitmq/)&amp;raquo;. В этой статье усложним требуемый функционал, добавив возможность конфигурирования времени ожидания повтора в зависимости от текущего значния счетчика повторов." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://jstructure.com/post/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/" />
+
+
+
+<meta property="article:published_time" content="2017-12-28T09:47:28&#43;03:00"/>
+
+<meta property="article:modified_time" content="2017-12-28T09:47:28&#43;03:00"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta itemprop="name" content="Повторное выполнение задач с разным временем ожидания повтора в RabbitMQ">
+<meta itemprop="description" content="Я уже писал про &amp;laquo;[повторное выполнение задач в RabbitMQ](/post/re-execution-of-tasks-in-rabbitmq/)&amp;raquo;. В этой статье усложним требуемый функционал, добавив возможность конфигурирования времени ожидания повтора в зависимости от текущего значния счетчика повторов.">
+
+
+<meta itemprop="datePublished" content="2017-12-28T09:47:28&#43;03:00" />
+<meta itemprop="dateModified" content="2017-12-28T09:47:28&#43;03:00" />
+<meta itemprop="wordCount" content="324">
+
+
+
+<meta itemprop="keywords" content="RabbitMQ,DLX," />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Повторное выполнение задач с разным временем ожидания повтора в RabbitMQ"/>
+<meta name="twitter:description" content="Я уже писал про &amp;laquo;[повторное выполнение задач в RabbitMQ](/post/re-execution-of-tasks-in-rabbitmq/)&amp;raquo;. В этой статье усложним требуемый функционал, добавив возможность конфигурирования времени ожидания повтора в зависимости от текущего значния счетчика повторов."/>
+
+
+    </head>
+<body>
+    <nav class="main-nav">
+    <div class="logo">JStructure</div>
+
+	
+		<a href='http://jstructure.com/'> <span class="arrow">←</span>Главная</a>
+	
+
+	
+
+    
+        <a href="https://t.me/jstructure">Телеграм</a>
+    
+
+	
+		<a href="http://jstructure.com/index.xml">RSS</a>
+	
+</nav>
+<div style="clear: both;"></div>
+
+    <section id="wrapper">
+        
+        
+<article class="post">
+    <header>
+        <h1>Повторное выполнение задач с разным временем ожидания повтора в RabbitMQ</h1>
+        <h2 class="headline">
+        28 декабря 2017
+        <br>
+        
+        
+            
+                <a href="http://jstructure.com/tags/rabbitmq">RabbitMQ</a>
+            
+                <a href="http://jstructure.com/tags/dlx">DLX</a>
+            
+        
+        
+        </h2>
+    </header>
+    <section id="post-body">
+        <p>Я уже писал про &laquo;<a href="/post/re-execution-of-tasks-in-rabbitmq/">повторное выполнение задач в RabbitMQ</a>&raquo;. В этой статье усложним требуемый функционал, добавив возможность конфигурирования времени ожидания повтора в зависимости от текущего значния счетчика повторов.</p>
+        <p>Попробуем модифицировать <a href="/post/re-execution-of-tasks-in-rabbitmq/">решение 4</a>. Итак, на входе имеем точку обмена <em>WorkExchange</em>. На нее подписана очередь <em>WorkQueue</em>, отправляющая сбойные сообщения в <em>RetryExchange</em> (<em>DLX</em>), откуда сообщения перенаправляются в очередь <em>RetryQueue</em>, объявленную с параметром <code>x-message-ttl</code>. При дотижении ttl сообщение заново публикуется в <em>WorkExchange</em> и опять попадает в очередь <em>WorkQueue</em>. Этот цикл можно повторять до достижения заданного в слушателе лимита.</p>
+
+<p>Первым делом в голову приходит мысль добавления нескольких очередей для <em>RetryExchange</em>, с различными параметрами <code>x-message-ttl</code>. Но для этого нужно решить вопрос с роутингом в <em>RetryExchange</em>. Использовать <em>routing key</em> не получится, так как он у всех одинаковый, поэтому типы <em>direct</em> и <em>topic</em> для точки доступа <em>RetryExchange</em> не подойдут. Очевидно, что тип <em>fanout</em> тоже не подходит, так как разветвление не требуется. А вот на типе <em>headers</em> можно попробовать остановиться. Сообщения, попадающие в <em>DLX</em>, имеют специальный заголовок <code>x-death</code>, содержащий в себе список словарей, которые содерджат информацию о количестве попаданий в различные <em>DLX</em> при разных условиях. Пример заголовка <code>x-death</code> показан ниже.</p>
+
+<pre><code>x-death:        count: 4
+             exchange: RetryExchange
+                queue: RetryQueue
+               reason: expired
+         routing-keys: WorkQueue
+                 time: 1510583141
+                 
+                count: 3
+             exchange: WorkExchange
+                queue: WorkQueue
+               reason: rejected
+         routing-keys: WorkQueue
+                 time: 1510583141
+</code></pre>
+
+<p>Казалось бы, вся информация есть, но <strong>в RabbitMQ нет возможности связать очередь с точкой обмена по правилу <code>x-death[1].count = 3</code></strong>. Таким образом, вынуждены отказаться от первой идеи, потому что в <em>RabbitMQ</em> не возможно реализовать соответствующий роутинг.</p>
+
+<p>Идем дальше. Можно создать цепочку очередей с различными параметрами <code>x-message-ttl</code>, как показано на схеме ниже. После каждой <em>DLQ</em>, сообщение, минуя соответсвующий <em>DLX</em> попапдает в новую очередь задач. Консьюмер подписан на каждую из них. Эта схема будет работать, но выглядит довольно громоздкой.</p>
+
+<p><img src="/images/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/multiple-ttl.png" alt="Схема с подписчиком dead-letter очереди" /></p>
+
+<p>Следующая мысль, которая приходит в голову &mdash; создание подписчика (<em>consumer</em>) для <em>dead-letter</em> очереди, который периодически забирает сообщения и, в зависимости от параметров <code>count</code> и <code>time</code> необходимого словаря заголовка <code>x-death</code>, делает <em>reject</em> либо с <code>requeue=true</code>, либо с <code>requeue=false</code>. При <code>requeue=true</code> сообщение останется в <em>dead-letter</em> очереди до следующего получения его подписчиком. Если же передать <code>requeue=false</code>, сообщение уйдет в <em>WorkExchange</em>, откуда снова попадет в <em>WorkQueue</em> для следующей попытки. Ниже представлена схема реализации.</p>
+
+<p><img src="/images/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/dlq-consumer.png" alt="Схема с подписчиком dead-letter очереди" /></p>
+
+    </section>
+</article>
+
+<footer id="post-meta" class="clearfix">
+    <a href="https://twitter.com/aliskhakov">
+    <img class="avatar" src="http://jstructure.com/images/avatar.png">
+    <div>
+        <span class="dark">Albert Iskhakov</span>
+        <span>PhD, TL</span>
+    </div>
+    </a>
+    <section id="sharing">
+        <a class="twitter" href="https://twitter.com/intent/tweet?text=http%3a%2f%2fjstructure.com%2fpost%2fre-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq%2f - %d0%9f%d0%be%d0%b2%d1%82%d0%be%d1%80%d0%bd%d0%be%d0%b5%20%d0%b2%d1%8b%d0%bf%d0%be%d0%bb%d0%bd%d0%b5%d0%bd%d0%b8%d0%b5%20%d0%b7%d0%b0%d0%b4%d0%b0%d1%87%20%d1%81%20%d1%80%d0%b0%d0%b7%d0%bd%d1%8b%d0%bc%20%d0%b2%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%b5%d0%bc%20%d0%be%d0%b6%d0%b8%d0%b4%d0%b0%d0%bd%d0%b8%d1%8f%20%d0%bf%d0%be%d0%b2%d1%82%d0%be%d1%80%d0%b0%20%d0%b2%20RabbitMQ by @aliskhakov"><span class="icon-twitter"> Твитнуть</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Поделиться</span>
+</a>
+
+    </section>
+</footer>
+
+
+
+<ul id="post-list" class="archive readmore">
+    <h3>Далее</h3>
+
+    
+    
+    
+        <li>
+            <a href='/post/doctrine-entity-extending/'><aside class="dates">13 ноября 2017</aside></a>
+            <a href='/post/doctrine-entity-extending/'>Расширение сущности Doctrine ORM</a>
+        </li>
+    
+        <li>
+            <a href='/post/re-execution-of-tasks-in-rabbitmq/'><aside class="dates">12 ноября 2017</aside></a>
+            <a href='/post/re-execution-of-tasks-in-rabbitmq/'>Повторное выполнение задач в RabbitMQ</a>
+        </li>
+    
+</ul>
+
+
+
+        <footer id="footer">
+    
+    <p class="small">
+    
+        &copy; Albert Iskhakov
+    
+    </p>
+</footer>
+
+    </section>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="http://jstructure.com/js/main.js"></script>
+<script src="http://jstructure.com/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-109511104-1', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+</body>
+</html>

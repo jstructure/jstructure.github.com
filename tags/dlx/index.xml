@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>ru-ru</language>
     <copyright>&amp;copy; Albert Iskhakov</copyright>
-    <lastBuildDate>Sun, 12 Nov 2017 18:39:42 +0300</lastBuildDate>
+    <lastBuildDate>Thu, 28 Dec 2017 09:47:28 +0300</lastBuildDate>
     
 	<atom:link href="http://jstructure.com/tags/dlx/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Повторное выполнение задач с разным временем ожидания повтора в RabbitMQ</title>
+      <link>http://jstructure.com/post/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/</link>
+      <pubDate>Thu, 28 Dec 2017 09:47:28 +0300</pubDate>
+      
+      <guid>http://jstructure.com/post/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/</guid>
+      <description>Попробуем модифицировать решение 4. Итак, на входе имеем точку обмена WorkExchange. На нее подписана очередь WorkQueue, отправляющая сбойные сообщения в RetryExchange (DLX), откуда сообщения перенаправляются в очередь RetryQueue, объявленную с параметром x-message-ttl. При дотижении ttl сообщение заново публикуется в WorkExchange и опять попадает в очередь WorkQueue. Этот цикл можно повторять до достижения заданного в слушателе лимита.
+Первым делом в голову приходит мысль добавления нескольких очередей для RetryExchange, с различными параметрами x-message-ttl.</description>
+    </item>
     
     <item>
       <title>Повторное выполнение задач в RabbitMQ</title>
@@ -18,8 +28,7 @@
       <pubDate>Sun, 12 Nov 2017 18:39:42 +0300</pubDate>
       
       <guid>http://jstructure.com/post/re-execution-of-tasks-in-rabbitmq/</guid>
-      <description>Во время выполнения задач, которые приходят подписчику из очереди в виде сообщения, возможны случаи сбоев и ошибок. При этом бывает, что задачу нужно попробовать выполнить некоторое количество раз, прежде чем удалить ее из очереди.
-Решение 1. Возврат сообщения в очередь. При возникновении ошибки на стороне подписчика можно отклонить сообщение (reject или nack с параметром requeue=true), оставив сообщение в очереди. Если очередь объявлена с параметром no_ack=false и подписчик не выполняет ack, сообщение также возвращается в очередь.</description>
+      <description>Решение 1. Возврат сообщения в очередь. При возникновении ошибки на стороне подписчика можно отклонить сообщение (reject или nack с параметром requeue=true), оставив сообщение в очереди. Если очередь объявлена с параметром no_ack=false и подписчик не выполняет ack, сообщение также возвращается в очередь. При возврате сообщения в очередь ему автоматически добавляется заголовок redelivered=true. Количество возвратов при этом нельзя зафиксировать. По наличию этого заголовка можно понять только то, что сообщение уже обрабатывалось и по каким-то причинам возвратилось в очередь.</description>
     </item>
     
   </channel>

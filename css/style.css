@@ -44,7 +44,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 
 /* Spacing */
 .post h1, h3, h4, h5, p, .post-body ul, ol, pre {
-margin-bottom: 20px;
+margin: 20px 0;
 }
 
 /* Base */
@@ -164,16 +164,12 @@ nav.main-nav .logo {
 a,
 #title,
 #post-list a:hover,
-#post-list li:hover .dates,
 #title:hover {
 	color: #5badf0;
 	color: #5694f1;
 }
 
 #sharing a,
-a.cta {
-	text-decoration: none;
-}
 
 p a { color: #5694f1; }
 
@@ -235,15 +231,14 @@ em, i { font-style: italic; }
 }
 
 .post h1 {
-	margin-bottom: 0px;
 	color: #222;
 	font: 300 32px/1.4em "Helvetica Neue", Helvetica,Arial,sans-serif;
 }
 
 .post h2 {
-	margin-bottom: 40px;
-	  font: 300 24px/1.5 "Helvetica Neue",Helvetica,Arial,sans-serif;
-	  color: #111;
+	margin-bottom: 20px;
+	font: 300 24px/1.5 "Helvetica Neue",Helvetica,Arial,sans-serif;
+	color: #111;
 }
 
 .post h2.subtitle {
@@ -407,18 +402,22 @@ Post List
 	border-bottom: 1px solid #eee;
 }
 
-#post-list a {
+#post-list a.title {
 	color: #333;
 	display: block;
-	font: bold 19px/1.7 "Helvetica Neue",helvetica,Arial,sans-serif;
+	font: 24px/1.2 "Helvetica Neue",helvetica,Arial,sans-serif;
+	text-decoration: none;
 }
 
 #post-list .dates {
-	float: right;
-	position: relative;
-	top: 1px;
 	font: 300 17px/1.8 "Helvetica Neue",helvetica,Arial,sans-serif;
 	color: #bbb;
+}
+
+#post-list aside.dates {
+	float: right;
+       	position: relative;
+	top: 1px;
 }
 
 #post-list-footer {

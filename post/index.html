@@ -28,7 +28,7 @@
 
 
 
-<meta property="og:updated_time" content="2017-11-13T09:22:29&#43;03:00"/>
+<meta property="og:updated_time" content="2017-12-28T09:47:28&#43;03:00"/>
 
 
 
@@ -85,13 +85,30 @@
 		<ul id="post-list">
     
         <li>
-            <a href='/post/doctrine-entity-extending/'><aside class="dates">13 ноября 2017</aside></a>
-            <a href='/post/doctrine-entity-extending/'>Расширение сущности Doctrine ORM<h2></h2></a>
+	    <a href='/post/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/' class="title">Повторное выполнение задач с разным временем ожидания повтора в RabbitMQ</a>
+	    <div class="dates">28 декабря 2017</div>
+	    <div>
+		    <p>Я уже писал про &laquo;<a href="/post/re-execution-of-tasks-in-rabbitmq/">повторное выполнение задач в RabbitMQ</a>&raquo;. В этой статье усложним требуемый функционал, добавив возможность конфигурирования времени ожидания повтора в зависимости от текущего значния счетчика повторов.</p>
+		    <a href="/post/re-execution-of-tasks-with-different-repetition-waiting-times-in-rabbitmq/">Продолжение...</a>
+	    </div>
         </li>
     
         <li>
-            <a href='/post/re-execution-of-tasks-in-rabbitmq/'><aside class="dates">12 ноября 2017</aside></a>
-            <a href='/post/re-execution-of-tasks-in-rabbitmq/'>Повторное выполнение задач в RabbitMQ<h2></h2></a>
+	    <a href='/post/doctrine-entity-extending/' class="title">Расширение сущности Doctrine ORM</a>
+	    <div class="dates">13 ноября 2017</div>
+	    <div>
+		    <p>Иногда на практике бывает необходимо расширить сущности, передставляющие таблицы базы данных в коде. Например, <a href="http://php.net">PHP</a>-фреймворк <a href="https://symfony.com">Symfony</a> позволяет создавать сущности в так называемых вендорных бандлах. При необходимости в приложении, использующей этот бандл, можно расширить вендорную сущность свойствами, присущими предметной области данного приложения. В статье рассматриваются различные варианты расширения сущностей на примере <a href="http://www.doctrine-project.org/projects/orm.html">Doctrine ORM</a> с использованием языка PHP.</p>
+		    <a href="/post/doctrine-entity-extending/">Продолжение...</a>
+	    </div>
+        </li>
+    
+        <li>
+	    <a href='/post/re-execution-of-tasks-in-rabbitmq/' class="title">Повторное выполнение задач в RabbitMQ</a>
+	    <div class="dates">12 ноября 2017</div>
+	    <div>
+		    <p>Во время выполнения задач, которые приходят подписчику из очереди в виде сообщения, возможны случаи сбоев и ошибок. При этом бывает, что задачу нужно попробовать выполнить некоторое количество раз, прежде чем удалить ее из очереди.</p>
+		    <a href="/post/re-execution-of-tasks-in-rabbitmq/">Продолжение...</a>
+	    </div>
         </li>
     
 </ul>
